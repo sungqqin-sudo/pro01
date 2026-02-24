@@ -20,9 +20,13 @@ export const SearchBar = ({ initialQuery = '', initialCategory = '', initialAi =
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="예: 75kw 모터 인버터 업체 찾아줘"
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400"
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
+        >
           <option value="">전체 분야</option>
           {CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
