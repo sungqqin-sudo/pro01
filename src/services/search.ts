@@ -22,16 +22,10 @@ const productTokens = (product: Product, vendor: Vendor): Set<string> => {
   return new Set(tokens);
 };
 
-const vendorTokens = (vendor: Vendor): Set<string> => {
-  const tokens = tokenize(`${vendor.companyName} ${vendor.categories.join(' ')}`);
-  return new Set(tokens);
-};
-
 export const searchProducts = (db: AppDB, params: SearchParams, nlq?: NLQResult): ProductResult[] => {
   const queryTokens = tokenize(params.q);
-  const vendorQueryTokens = tokenize(params.vendorQuery);
   const aiTokens = nlq?.keywords ?? [];
-  const mergedProductTokens = [...new Set([...queryTokens, ...aiTokens])];
+  const mergedTokens = [...new Set([...queryTokens, ...aiTokens])];
 
   return db.products
     .map((product) => {
@@ -42,15 +36,12 @@ export const searchProducts = (db: AppDB, params: SearchParams, nlq?: NLQResult)
       if (params.vendorId && vendor.id !== params.vendorId) return null;
       if (params.minRating > 0 && vendor.avgRating < params.minRating) return null;
 
-      const productTokenSet = productTokens(product, vendor);
-      const vendorTokenSet = vendorTokens(vendor);
+      const tokens = productTokens(product, vendor);
+      const score = mergedTokens.length
+        ? mergedTokens.reduce((sum, token) => (tokens.has(token) ? sum + 1 : sum), 0)
+        : 1;
 
-      const productScore = mergedProductTokens.reduce((sum, token) => (productTokenSet.has(token) ? sum + 1 : sum), 0);
-      const vendorScore = vendorQueryTokens.reduce((sum, token) => (vendorTokenSet.has(token) ? sum + 1 : sum), 0);
-      const score = productScore + vendorScore;
-
-      if (mergedProductTokens.length && productScore === 0) return null;
-      if (vendorQueryTokens.length && vendorScore === 0) return null;
+      if (mergedTokens.length && score === 0) return null;
       return { product, vendor, score };
     })
     .filter((item): item is ProductResult => Boolean(item))

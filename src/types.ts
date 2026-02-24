@@ -86,7 +86,6 @@ export type AppDB = {
 
 export type SearchParams = {
   q: string;
-  vendorQuery: string;
   category: string;
   vendorId: string;
   minRating: number;

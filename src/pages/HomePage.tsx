@@ -33,10 +33,9 @@ export const HomePage = () => {
         <p className="mt-2 text-sm text-blue-100">필요한 산업 자재를 빠르게 찾고 업체 비교 후 견적까지 한 번에 진행하는 서비스입니다.</p>
         <div className="mt-4">
           <SearchBar
-            onSubmit={(query, vendorQuery, category, useAi) => {
+            onSubmit={(query, category, useAi) => {
               const params = new URLSearchParams();
               if (query) params.set('q', query);
-              if (vendorQuery) params.set('vendorQuery', vendorQuery);
               if (category) params.set('category', category);
               if (useAi) params.set('ai', '1');
               navigate(`/search?${params.toString()}`);
