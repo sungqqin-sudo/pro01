@@ -34,8 +34,9 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          BASE_URL: /${{ github.event.repository.name }}/
         run: |
-          echo "BASE_URL=/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_ENV"
           npm run build
           cp dist/index.html dist/404.html
 
