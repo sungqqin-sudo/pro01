@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { SearchBar } from '../components/SearchBar';
@@ -241,6 +242,12 @@ export const SearchPage = () => {
                 <p className="text-xs text-slate-500">매칭 {items.length}건</p>
               </div>
               <p className="mt-2 text-sm text-slate-600">취급 분야: {vendor.categories.join(', ')}</p>
+              <Link
+                to={`/vendor/${vendor.id}`}
+                className="mt-3 inline-flex rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+              >
+                업체 보기
+              </Link>
             </section>
           ))}
         </div>

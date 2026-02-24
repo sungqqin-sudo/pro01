@@ -41,6 +41,7 @@ type AppContextValue = {
   deleteProduct: (productId: string) => void;
   addReview: (vendorId: string, rating: number, text: string) => string | null;
   saveQuote: (items: QuoteItem[]) => string | null;
+  updateQuote: (quoteId: string, items: QuoteItem[]) => string | null;
   applyUserSanction: (userId: string, days: number | null) => string | null;
   clearUserSanction: (userId: string) => void;
   applyVendorSanction: (vendorId: string, days: number | null) => string | null;
@@ -275,6 +276,29 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
+  const updateQuote = (quoteId: string, items: QuoteItem[]): string | null => {
+    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) {
+      return '견적 수정은 로그인 후 가능합니다.';
+    }
+    if (isUserBlocked(currentUser)) return '제재된 계정은 견적 수정이 불가합니다.';
+    if (items.length === 0) return '최소 1개 이상의 견적 항목이 필요합니다.';
+
+    const target = db.quotes.find((quote) => quote.id === quoteId);
+    if (!target) return '수정할 견적을 찾을 수 없습니다.';
+    if (target.buyerUserId !== currentUser.id) return '본인 견적만 수정할 수 있습니다.';
+
+    const next = {
+      ...db,
+      quotes: db.quotes.map((quote) => (
+        quote.id === quoteId
+          ? { ...quote, items, createdAt: new Date().toISOString() }
+          : quote
+      )),
+    };
+    commitDB(next);
+    return null;
+  };
+
   const applyUserSanction = (userId: string, days: number | null): string | null => {
     if (!currentUser || currentUser.role !== 'admin') return '관리자만 제재할 수 있습니다.';
     const target = db.users.find((user) => user.id === userId);
@@ -388,6 +412,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     deleteProduct,
     addReview,
     saveQuote,
+    updateQuote,
     applyUserSanction,
     clearUserSanction,
     applyVendorSanction,

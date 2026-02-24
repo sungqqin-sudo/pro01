@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export const BuyerDashboardPage = () => {
@@ -23,7 +23,15 @@ export const BuyerDashboardPage = () => {
       <div className="space-y-3">
         {quotes.map((quote) => (
           <article key={quote.id} className="rounded-xl border border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">{new Date(quote.createdAt).toLocaleString('ko-KR')}</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-500">{new Date(quote.createdAt).toLocaleString('ko-KR')}</p>
+              <Link
+                to={`/buyer/quote?edit=${quote.id}`}
+                className="rounded-md border border-slate-300 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50"
+              >
+                수정
+              </Link>
+            </div>
             <ul className="mt-2 space-y-2">
               {quote.items.map((item, idx) => (
                 <li key={`${quote.id}-${idx}`} className="text-sm text-slate-700">

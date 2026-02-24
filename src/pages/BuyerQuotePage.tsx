@@ -1,5 +1,5 @@
-import { FormEvent, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import type { QuoteItem } from '../types';
 
@@ -12,7 +12,8 @@ const totals = (items: QuoteItem[]) => {
 };
 
 export const BuyerQuotePage = () => {
-  const { db, currentUser, saveQuote } = useApp();
+  const { db, currentUser, saveQuote, updateQuote } = useApp();
+  const [params, setParams] = useSearchParams();
   const [items, setItems] = useState<QuoteItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [productName, setProductName] = useState('');
@@ -23,8 +24,23 @@ export const BuyerQuotePage = () => {
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const [message, setMessage] = useState('');
+  const editQuoteId = params.get('edit') ?? '';
 
   const currentProduct = useMemo(() => db.products.find((p) => p.id === selectedProductId), [db.products, selectedProductId]);
+  const editingQuote = useMemo(
+    () => db.quotes.find((quote) => quote.id === editQuoteId && quote.buyerUserId === currentUser?.id),
+    [currentUser?.id, db.quotes, editQuoteId]
+  );
+
+  useEffect(() => {
+    if (!editQuoteId) return;
+    if (!editingQuote) {
+      setMessage('수정할 견적을 찾을 수 없습니다.');
+      return;
+    }
+    setItems(editingQuote.items);
+    setMessage('견적을 수정 중입니다.');
+  }, [editQuoteId, editingQuote]);
 
   const addItem = (event: FormEvent) => {
     event.preventDefault();
@@ -65,12 +81,19 @@ export const BuyerQuotePage = () => {
       return;
     }
 
-    const err = saveQuote(items);
+    const err = editQuoteId ? updateQuote(editQuoteId, items) : saveQuote(items);
     if (err) {
       setMessage(err);
       return;
     }
     setItems([]);
+    if (editQuoteId) {
+      const next = new URLSearchParams(params);
+      next.delete('edit');
+      setParams(next, { replace: true });
+      setMessage('견적이 수정되었습니다.');
+      return;
+    }
     setMessage('견적이 저장되었습니다.');
   };
 
@@ -81,11 +104,29 @@ export const BuyerQuotePage = () => {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">견적 산출</h1>
       <p className="text-sm text-slate-600">비로그인도 견적 산출 가능. 저장은 구매자/판매자 로그인 필요.</p>
+      {editQuoteId && (
+        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-800">
+          견적 수정 모드입니다.
+          <button
+            type="button"
+            className="ml-2 font-semibold underline"
+            onClick={() => {
+              const next = new URLSearchParams(params);
+              next.delete('edit');
+              setParams(next, { replace: true });
+              setItems([]);
+              setMessage('새 견적 작성 모드로 전환되었습니다.');
+            }}
+          >
+            새 견적으로 전환
+          </button>
+        </div>
+      )}
 
       <form onSubmit={addItem} className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm">
-            제품 선택(선택)
+            제품 선택
             <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2">
               <option value="">직접 입력</option>
               {db.products.map((p) => (
@@ -154,7 +195,9 @@ export const BuyerQuotePage = () => {
           예상 합계: {money(total.min)}원{total.max !== total.min ? ` ~ ${money(total.max)}원` : ''}
         </p>
 
-        <button onClick={save} className="mt-3 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">견적 저장</button>
+        <button onClick={save} className="mt-3 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+          {editQuoteId ? '견적 수정 저장' : '견적 저장'}
+        </button>
         {!canSave && (
           <p className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
             비로그인은 저장할 수 없습니다. <Link to="/login" className="font-semibold underline">로그인 후 저장</Link>
