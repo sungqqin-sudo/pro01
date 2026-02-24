@@ -29,8 +29,8 @@ export const HomePage = () => {
   return (
     <div className="space-y-6">
       <section className="rounded-2xl bg-gradient-to-r from-brand-700 to-brand-600 p-6 text-white">
-        <h1 className="text-3xl font-bold">견적확인 사이트 MVP</h1>
-        <p className="mt-2 text-sm text-blue-100">무과금(0원) 구조: 로컬 검색 + 로컬 계정 + 로컬 견적 저장</p>
+        <h1 className="text-3xl font-bold">산업 자재견적</h1>
+        <p className="mt-2 text-sm text-blue-100">필요한 산업 자재를 빠르게 찾고 업체 비교 후 견적까지 한 번에 진행하는 서비스입니다.</p>
         <div className="mt-4">
           <SearchBar
             onSubmit={(query, category, useAi) => {
