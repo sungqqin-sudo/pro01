@@ -9,7 +9,10 @@ const formatPrice = (min?: number, max?: number): string => {
 
 export const ProductCard = ({ product, vendor }: { product: Product; vendor: Vendor }) => (
   <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-    <p className="text-xs font-semibold text-brand-700">{product.category}</p>
+    <div className="flex items-center gap-2">
+      <p className="text-xs font-semibold text-brand-700">{product.category}</p>
+      {vendor.isSample && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">예시 자재</span>}
+    </div>
     <h3 className="mt-1 text-lg font-semibold text-slate-900">{product.name}</h3>
     <p className="mt-2 text-sm text-slate-600">{product.desc}</p>
     <p className="mt-2 text-sm font-medium text-slate-900">{formatPrice(product.priceMin, product.priceMax)}</p>

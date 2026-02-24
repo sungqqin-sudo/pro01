@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { SearchBar } from '../components/SearchBar';
@@ -6,15 +6,40 @@ import { useApp } from '../context/AppContext';
 import { parseNaturalQuery } from '../services/nlq';
 import { searchProducts } from '../services/search';
 
+const PAGE_SIZE = 9;
+const PAGE_WINDOW = 5;
+
+const buildPageItems = (current: number, total: number): Array<number | 'ellipsis'> => {
+  if (total <= PAGE_WINDOW + 2) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const items: Array<number | 'ellipsis'> = [1];
+  const half = Math.floor(PAGE_WINDOW / 2);
+  let start = Math.max(2, current - half);
+  let end = Math.min(total - 1, current + half);
+
+  if (start === 2) end = Math.min(total - 1, start + PAGE_WINDOW - 1);
+  if (end === total - 1) start = Math.max(2, end - PAGE_WINDOW + 1);
+
+  if (start > 2) items.push('ellipsis');
+  for (let p = start; p <= end; p += 1) items.push(p);
+  if (end < total - 1) items.push('ellipsis');
+  items.push(total);
+  return items;
+};
+
 export const SearchPage = () => {
   const { db, isAdmin, isVendorBlocked } = useApp();
   const [params, setParams] = useSearchParams();
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const q = params.get('q') ?? '';
   const category = params.get('category') ?? '';
   const vendorId = params.get('vendorId') ?? '';
   const minRating = Number(params.get('minRating') ?? '0');
   const useAi = params.get('ai') === '1';
+  const requestedPage = Number(params.get('page') ?? '1');
 
   const visibleDb = useMemo(() => {
     if (isAdmin) return db;
@@ -44,6 +69,29 @@ export const SearchPage = () => {
     [visibleDb, q, category, vendorId, minRating, nlq]
   );
 
+  const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const currentPage = Number.isFinite(requestedPage) ? Math.max(1, Math.min(pageCount, requestedPage)) : 1;
+  const pagedResults = results.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageItems = buildPageItems(currentPage, pageCount);
+
+  useEffect(() => {
+    if (requestedPage !== currentPage) {
+      const next = new URLSearchParams(params);
+      if (currentPage === 1) next.delete('page'); else next.set('page', String(currentPage));
+      setParams(next, { replace: true });
+    }
+  }, [currentPage, params, requestedPage, setParams]);
+
+  const movePage = (nextPage: number) => {
+    const safeNext = Math.max(1, Math.min(pageCount, nextPage));
+    const next = new URLSearchParams(params);
+    if (safeNext === 1) next.delete('page'); else next.set('page', String(safeNext));
+    setParams(next);
+    window.setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">검색 결과</h1>
@@ -56,6 +104,7 @@ export const SearchPage = () => {
           if (query) next.set('q', query); else next.delete('q');
           if (nextCategory) next.set('category', nextCategory); else next.delete('category');
           if (ai) next.set('ai', '1'); else next.delete('ai');
+          next.delete('page');
           setParams(next);
         }}
       />
@@ -69,6 +118,7 @@ export const SearchPage = () => {
             onChange={(e) => {
               const next = new URLSearchParams(params);
               if (e.target.value) next.set('vendorId', e.target.value); else next.delete('vendorId');
+              next.delete('page');
               setParams(next);
             }}
           >
@@ -87,6 +137,7 @@ export const SearchPage = () => {
             onChange={(e) => {
               const next = new URLSearchParams(params);
               if (e.target.value === '0') next.delete('minRating'); else next.set('minRating', e.target.value);
+              next.delete('page');
               setParams(next);
             }}
           >
@@ -110,11 +161,51 @@ export const SearchPage = () => {
         </div>
       </div>
 
-      <p className="text-sm text-slate-600">총 {results.length}개 결과</p>
+      <div ref={resultsRef} className="flex items-center justify-between gap-3">
+        <p className="text-sm text-slate-600">총 {results.length}개 결과 / {currentPage}페이지 (총 {pageCount}페이지)</p>
+        <button
+          type="button"
+          className="rounded-md border border-slate-300 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50"
+          onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        >
+          결과 위치 고정
+        </button>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {results.map(({ product, vendor }) => (
+        {pagedResults.map(({ product, vendor }) => (
           <ProductCard key={product.id} product={product} vendor={vendor} />
         ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          className="rounded-md border border-slate-300 px-3 py-1 text-sm disabled:opacity-40"
+          disabled={currentPage <= 1}
+          onClick={() => movePage(currentPage - 1)}
+        >
+          이전
+        </button>
+        {pageItems.map((item, index) =>
+          item === 'ellipsis' ? (
+            <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-slate-500">...</span>
+          ) : (
+            <button
+              key={item}
+              className={`rounded-md px-3 py-1 text-sm ${item === currentPage ? 'bg-brand-600 text-white' : 'border border-slate-300'}`}
+              onClick={() => movePage(item)}
+            >
+              {item}
+            </button>
+          )
+        )}
+        <button
+          className="rounded-md border border-slate-300 px-3 py-1 text-sm disabled:opacity-40"
+          disabled={currentPage >= pageCount}
+          onClick={() => movePage(currentPage + 1)}
+        >
+          다음
+        </button>
       </div>
     </div>
   );
