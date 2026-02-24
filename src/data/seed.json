@@ -1,0 +1,69 @@
+{
+  "users": [
+    { "id": "u-seller-1", "email": "power@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-seller-2", "email": "motion@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-seller-3", "email": "build@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-seller-4", "email": "tool@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-seller-5", "email": "control@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-seller-6", "email": "general@seller.com", "passwordHash": "h$1509442", "role": "seller", "createdAt": "2026-01-01T00:00:00.000Z" },
+    { "id": "u-buyer-1", "email": "buyer@demo.com", "passwordHash": "h$1509442", "role": "buyer", "createdAt": "2026-01-02T00:00:00.000Z" }
+  ],
+  "vendors": [
+    { "id": "v-1", "ownerUserId": "u-seller-1", "companyName": "한빛전력솔루션", "categories": ["전기", "계장"], "contact": { "phone": "010-1000-1111", "email": "power@seller.com", "kakao": "hanbitpower" }, "contactPublic": true, "avgRating": 4.5, "reviewCount": 2 },
+    { "id": "v-2", "ownerUserId": "u-seller-2", "companyName": "동해모션기계", "categories": ["기계"], "contact": { "phone": "010-2000-2222", "email": "motion@seller.com", "kakao": "dhmotion" }, "contactPublic": true, "avgRating": 4.0, "reviewCount": 1 },
+    { "id": "v-3", "ownerUserId": "u-seller-3", "companyName": "우리건축자재", "categories": ["건축"], "contact": { "phone": "010-3000-3333", "email": "build@seller.com", "kakao": "woobuild" }, "contactPublic": false, "avgRating": 5.0, "reviewCount": 1 },
+    { "id": "v-4", "ownerUserId": "u-seller-4", "companyName": "프로공구몰", "categories": ["공구"], "contact": { "phone": "010-4000-4444", "email": "tool@seller.com", "kakao": "protool" }, "contactPublic": true, "avgRating": 3.5, "reviewCount": 2 },
+    { "id": "v-5", "ownerUserId": "u-seller-5", "companyName": "정밀계장테크", "categories": ["계장", "전기"], "contact": { "phone": "010-5000-5555", "email": "control@seller.com", "kakao": "controltech" }, "contactPublic": false, "avgRating": 4.7, "reviewCount": 3 },
+    { "id": "v-6", "ownerUserId": "u-seller-6", "companyName": "다온산업유통", "categories": ["기타", "기계", "공구"], "contact": { "phone": "010-6000-6666", "email": "general@seller.com", "kakao": "daonbiz" }, "contactPublic": true, "avgRating": 4.2, "reviewCount": 1 }
+  ],
+  "products": [
+    { "id": "p-1", "vendorId": "v-1", "name": "75kW 산업용 인버터", "category": "전기", "tags": ["인버터", "모터제어"], "desc": "고효율 모터 속도제어", "priceMin": 1200000, "priceMax": 1600000, "keywords": ["75kw", "인버터", "모터", "전기"] },
+    { "id": "p-2", "vendorId": "v-1", "name": "MCC 패널", "category": "전기", "tags": ["분전", "제어반"], "desc": "현장 맞춤 제작 패널", "priceMin": 900000, "priceMax": 2400000, "keywords": ["mcc", "패널", "분전", "제어반"] },
+    { "id": "p-3", "vendorId": "v-1", "name": "차단기 100A", "category": "전기", "tags": ["차단기", "보호"], "desc": "산업용 누전 차단기", "priceMin": 45000, "priceMax": 95000, "keywords": ["차단기", "100a", "누전"] },
+    { "id": "p-4", "vendorId": "v-1", "name": "방수 분전함", "category": "전기", "tags": ["분전함", "IP65"], "desc": "실외 설치형 분전함", "priceMin": 150000, "priceMax": 280000, "keywords": ["분전함", "방수", "ip65"] },
+    { "id": "p-5", "vendorId": "v-1", "name": "케이블 트레이", "category": "전기", "tags": ["배선", "트레이"], "desc": "배선 정리용 아연도금", "priceMin": 28000, "priceMax": 76000, "keywords": ["케이블", "트레이", "배선"] },
+
+    { "id": "p-6", "vendorId": "v-2", "name": "3상 유도모터 30kW", "category": "기계", "tags": ["모터", "3상"], "desc": "연속 운전형 고내구 모터", "priceMin": 680000, "priceMax": 980000, "keywords": ["모터", "30kw", "3상", "기계"] },
+    { "id": "p-7", "vendorId": "v-2", "name": "감속기 1/30", "category": "기계", "tags": ["감속기", "동력전달"], "desc": "산업 설비용 감속기", "priceMin": 220000, "priceMax": 420000, "keywords": ["감속기", "동력", "기어"] },
+    { "id": "p-8", "vendorId": "v-2", "name": "벨트 컨베이어 롤러", "category": "기계", "tags": ["컨베이어", "롤러"], "desc": "내마모 롤러 부품", "priceMin": 18000, "priceMax": 46000, "keywords": ["컨베이어", "롤러", "이송"] },
+    { "id": "p-9", "vendorId": "v-2", "name": "유압 펌프", "category": "기계", "tags": ["유압", "펌프"], "desc": "중장비용 유압 펌프", "priceMin": 520000, "priceMax": 890000, "keywords": ["유압", "펌프", "중장비"] },
+    { "id": "p-10", "vendorId": "v-2", "name": "플렉시블 커플링", "category": "기계", "tags": ["커플링", "축"], "desc": "진동 완화형 축 결합", "priceMin": 32000, "priceMax": 99000, "keywords": ["커플링", "축", "기계"] },
+
+    { "id": "p-11", "vendorId": "v-3", "name": "경량 철골 자재", "category": "건축", "tags": ["철골", "구조"], "desc": "상가 내장용 경량 철골", "priceMin": 38000, "priceMax": 92000, "keywords": ["철골", "건축", "구조"] },
+    { "id": "p-12", "vendorId": "v-3", "name": "단열 샌드위치 패널", "category": "건축", "tags": ["단열", "패널"], "desc": "공장 외벽 단열 패널", "priceMin": 52000, "priceMax": 130000, "keywords": ["단열", "패널", "외벽"] },
+    { "id": "p-13", "vendorId": "v-3", "name": "고강도 앵커볼트", "category": "건축", "tags": ["볼트", "시공"], "desc": "콘크리트 고정용", "priceMin": 1200, "priceMax": 4200, "keywords": ["앵커", "볼트", "건축"] },
+    { "id": "p-14", "vendorId": "v-3", "name": "시멘트 몰탈", "category": "건축", "tags": ["시멘트", "몰탈"], "desc": "균열 보수용 몰탈", "priceMin": 6800, "priceMax": 15000, "keywords": ["시멘트", "몰탈", "보수"] },
+    { "id": "p-15", "vendorId": "v-3", "name": "방수 코팅제", "category": "건축", "tags": ["방수", "코팅"], "desc": "지붕/외벽 방수", "priceMin": 24000, "priceMax": 57000, "keywords": ["방수", "코팅", "건축"] },
+
+    { "id": "p-16", "vendorId": "v-4", "name": "충전 임팩드라이버", "category": "공구", "tags": ["드라이버", "충전"], "desc": "고토크 산업용", "priceMin": 120000, "priceMax": 220000, "keywords": ["임팩", "드라이버", "공구"] },
+    { "id": "p-17", "vendorId": "v-4", "name": "그라인더 5인치", "category": "공구", "tags": ["그라인더", "절삭"], "desc": "금속 절삭/연마", "priceMin": 64000, "priceMax": 132000, "keywords": ["그라인더", "절삭", "연마"] },
+    { "id": "p-18", "vendorId": "v-4", "name": "절단기 14인치", "category": "공구", "tags": ["절단", "컷팅"], "desc": "철재 컷팅 장비", "priceMin": 140000, "priceMax": 310000, "keywords": ["절단기", "컷팅", "공구"] },
+    { "id": "p-19", "vendorId": "v-4", "name": "토크렌치 세트", "category": "공구", "tags": ["렌치", "정비"], "desc": "정밀 토크 조절", "priceMin": 55000, "priceMax": 170000, "keywords": ["토크", "렌치", "정비"] },
+    { "id": "p-20", "vendorId": "v-4", "name": "레이저 거리측정기", "category": "공구", "tags": ["측정", "레이저"], "desc": "현장 거리 측정", "priceMin": 48000, "priceMax": 120000, "keywords": ["레이저", "거리", "측정"] },
+
+    { "id": "p-21", "vendorId": "v-5", "name": "압력 트랜스미터", "category": "계장", "tags": ["센서", "압력"], "desc": "4-20mA 출력 센서", "priceMin": 95000, "priceMax": 240000, "keywords": ["압력", "트랜스미터", "계장"] },
+    { "id": "p-22", "vendorId": "v-5", "name": "온도 센서 PT100", "category": "계장", "tags": ["온도", "센서"], "desc": "고정밀 RTD 센서", "priceMin": 21000, "priceMax": 73000, "keywords": ["온도", "pt100", "센서"] },
+    { "id": "p-23", "vendorId": "v-5", "name": "유량계", "category": "계장", "tags": ["유량", "계측"], "desc": "배관 유량 측정", "priceMin": 180000, "priceMax": 490000, "keywords": ["유량계", "계측", "배관"] },
+    { "id": "p-24", "vendorId": "v-5", "name": "PLC I/O 모듈", "category": "계장", "tags": ["PLC", "자동화"], "desc": "확장형 디지털 입출력", "priceMin": 125000, "priceMax": 360000, "keywords": ["plc", "i/o", "자동화"] },
+    { "id": "p-25", "vendorId": "v-5", "name": "신호 변환기", "category": "계장", "tags": ["변환", "신호"], "desc": "절연형 신호 컨버터", "priceMin": 43000, "priceMax": 115000, "keywords": ["신호", "변환기", "절연"] },
+
+    { "id": "p-26", "vendorId": "v-6", "name": "산업용 안전장갑", "category": "기타", "tags": ["안전", "보호구"], "desc": "절단 저항 장갑", "priceMin": 2500, "priceMax": 9000, "keywords": ["안전", "장갑", "보호구"] },
+    { "id": "p-27", "vendorId": "v-6", "name": "작업등 LED 100W", "category": "기타", "tags": ["조명", "LED"], "desc": "현장용 고휘도 작업등", "priceMin": 36000, "priceMax": 98000, "keywords": ["작업등", "led", "조명"] },
+    { "id": "p-28", "vendorId": "v-6", "name": "에어 호스 20m", "category": "공구", "tags": ["에어", "호스"], "desc": "고압 에어라인", "priceMin": 18000, "priceMax": 54000, "keywords": ["에어", "호스", "공구"] },
+    { "id": "p-29", "vendorId": "v-6", "name": "소형 윈치", "category": "기계", "tags": ["윈치", "권양"], "desc": "500kg 급 권양 장비", "priceMin": 280000, "priceMax": 620000, "keywords": ["윈치", "권양", "기계"] },
+    { "id": "p-30", "vendorId": "v-6", "name": "현장 소모품 패키지", "category": "기타", "tags": ["소모품", "현장"], "desc": "타이/테이프/클램프 세트", "priceMin": 15000, "priceMax": 48000, "keywords": ["소모품", "현장", "패키지"] }
+  ],
+  "reviews": [
+    { "id": "r-1", "vendorId": "v-1", "buyerUserId": "u-buyer-1", "rating": 5, "text": "응대가 빠르고 기술 지원이 좋았습니다.", "createdAt": "2026-01-20T09:00:00.000Z" },
+    { "id": "r-2", "vendorId": "v-1", "buyerUserId": "u-buyer-1", "rating": 4, "text": "납기 일정이 정확합니다.", "createdAt": "2026-01-23T12:00:00.000Z" },
+    { "id": "r-3", "vendorId": "v-2", "buyerUserId": "u-buyer-1", "rating": 4, "text": "가격 대비 성능이 좋네요.", "createdAt": "2026-01-18T08:00:00.000Z" },
+    { "id": "r-4", "vendorId": "v-3", "buyerUserId": "u-buyer-1", "rating": 5, "text": "자재 품질이 우수합니다.", "createdAt": "2026-01-21T08:00:00.000Z" },
+    { "id": "r-5", "vendorId": "v-4", "buyerUserId": "u-buyer-1", "rating": 3, "text": "보통 수준입니다.", "createdAt": "2026-01-15T08:00:00.000Z" },
+    { "id": "r-6", "vendorId": "v-4", "buyerUserId": "u-buyer-1", "rating": 4, "text": "재고 확인이 빨랐습니다.", "createdAt": "2026-01-17T08:00:00.000Z" },
+    { "id": "r-7", "vendorId": "v-5", "buyerUserId": "u-buyer-1", "rating": 5, "text": "계장 기술 상담이 전문적입니다.", "createdAt": "2026-01-11T08:00:00.000Z" },
+    { "id": "r-8", "vendorId": "v-5", "buyerUserId": "u-buyer-1", "rating": 4, "text": "견적 회신이 빠릅니다.", "createdAt": "2026-01-12T08:00:00.000Z" },
+    { "id": "r-9", "vendorId": "v-5", "buyerUserId": "u-buyer-1", "rating": 5, "text": "설치 가이드가 상세합니다.", "createdAt": "2026-01-13T08:00:00.000Z" },
+    { "id": "r-10", "vendorId": "v-6", "buyerUserId": "u-buyer-1", "rating": 4, "text": "소모품 조달이 편합니다.", "createdAt": "2026-01-19T08:00:00.000Z" }
+  ],
+  "quotes": []
+}
