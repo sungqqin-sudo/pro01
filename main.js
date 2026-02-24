@@ -1,3 +1,5 @@
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xlgwaeod';
+
 const rangeClass = (value) => {
   if (value <= 9) return 'range-1';
   if (value <= 19) return 'range-2';
@@ -96,6 +98,7 @@ const setupReveal = () => {
     document.querySelector('.hero'),
     ...document.querySelectorAll('.stat-card'),
     ...document.querySelectorAll('.draw-card'),
+    document.querySelector('.contact-section'),
   ].filter(Boolean);
 
   items.forEach((item, index) => {
@@ -139,6 +142,51 @@ const setupButtons = () => {
   });
 };
 
+const setupInquiryForm = () => {
+  const form = document.querySelector('[data-inquiry-form]');
+  const message = document.querySelector('[data-form-message]');
+  const submitButton = document.querySelector('[data-submit-btn]');
+  if (!form || !message || !submitButton) return;
+
+  form.setAttribute('action', FORMSPREE_ENDPOINT);
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    submitButton.disabled = true;
+    submitButton.textContent = '전송 중...';
+    message.textContent = '';
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Form submission failed');
+      }
+
+      form.reset();
+      message.textContent = '문의가 접수되었습니다. 빠르게 확인 후 연락드리겠습니다.';
+      message.classList.remove('error');
+      message.classList.add('success');
+    } catch (error) {
+      message.textContent = '전송에 실패했습니다. 잠시 후 다시 시도해주세요.';
+      message.classList.remove('success');
+      message.classList.add('error');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = '문의 보내기';
+    }
+  });
+};
+
 generate(1);
 setupButtons();
+setupInquiryForm();
 setupReveal();

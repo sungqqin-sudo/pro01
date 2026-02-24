@@ -84,6 +84,34 @@
         </article>
       </div>
     </section>
+
+    <section class="contact-section">
+      <div class="section-title">
+        <h2>제휴 문의</h2>
+        <p>프로젝트 제안, 협업 문의를 남겨주세요</p>
+      </div>
+      <form class="contact-form" data-inquiry-form method="POST">
+        <input type="hidden" name="_subject" value="[LUCKY] 제휴 문의" />
+        <label class="field">
+          <span>이름</span>
+          <input type="text" name="name" required autocomplete="name" />
+        </label>
+        <label class="field">
+          <span>이메일</span>
+          <input type="email" name="email" required autocomplete="email" />
+        </label>
+        <label class="field">
+          <span>회사/브랜드</span>
+          <input type="text" name="company" autocomplete="organization" />
+        </label>
+        <label class="field field-full">
+          <span>문의 내용</span>
+          <textarea name="message" rows="5" required></textarea>
+        </label>
+        <button class="cta" type="submit" data-submit-btn>문의 보내기</button>
+        <p class="form-message" data-form-message aria-live="polite"></p>
+      </form>
+    </section>
   </main>
 
   <footer class="site-footer">
