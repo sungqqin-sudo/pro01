@@ -34,12 +34,6 @@ export const Layout = () => {
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Outlet />
       </main>
-
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-4 text-xs text-slate-500">
-          본 서비스는 데모/MVP이며 LocalStorage + seed.json 기반으로 동작합니다. 외부 유료 API/DB를 사용하지 않습니다.
-        </div>
-      </footer>
     </div>
   );
 };

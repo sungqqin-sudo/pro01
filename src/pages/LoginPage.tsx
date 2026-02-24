@@ -29,7 +29,7 @@ export const LoginPage = () => {
   return (
     <div className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h1 className="text-2xl font-bold">로그인</h1>
-      <p className="mt-1 text-sm text-slate-600">데모 계정 예시: buyer@demo.com / 1234, master@demo.com / 1234</p>
+      <p className="mt-1 text-sm text-slate-600">데모 계정 예시: buyer@demo.com / 1234, power@seller.com / 1234</p>
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <label className="block text-sm">
           이메일

@@ -40,8 +40,10 @@ type AppContextValue = {
   updateProduct: (productId: string, patch: Partial<Product>) => void;
   deleteProduct: (productId: string) => void;
   addReview: (vendorId: string, rating: number, text: string) => string | null;
+  deleteReviewByAdmin: (reviewId: string) => string | null;
   saveQuote: (items: QuoteItem[]) => string | null;
   updateQuote: (quoteId: string, items: QuoteItem[]) => string | null;
+  deleteQuote: (quoteId: string) => string | null;
   applyUserSanction: (userId: string, days: number | null) => string | null;
   clearUserSanction: (userId: string) => void;
   applyVendorSanction: (vendorId: string, days: number | null) => string | null;
@@ -260,6 +262,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
+  const deleteReviewByAdmin = (reviewId: string): string | null => {
+    if (!currentUser || currentUser.role !== 'admin') return '마스터 계정만 리뷰를 삭제할 수 있습니다.';
+    const target = db.reviews.find((review) => review.id === reviewId);
+    if (!target) return '삭제할 리뷰를 찾을 수 없습니다.';
+
+    const next = recalcVendorStats(
+      { ...db, reviews: db.reviews.filter((review) => review.id !== reviewId) },
+      target.vendorId
+    );
+    commitDB(next);
+    return null;
+  };
+
   const saveQuote = (items: QuoteItem[]): string | null => {
     if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) {
       return '견적 저장은 로그인 후 가능합니다.';
@@ -296,6 +311,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       )),
     };
     commitDB(next);
+    return null;
+  };
+
+  const deleteQuote = (quoteId: string): string | null => {
+    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) {
+      return '견적 삭제는 로그인 후 가능합니다.';
+    }
+
+    const target = db.quotes.find((quote) => quote.id === quoteId);
+    if (!target) return '삭제할 견적을 찾을 수 없습니다.';
+    if (target.buyerUserId !== currentUser.id) return '본인 견적만 삭제할 수 있습니다.';
+
+    commitDB({ ...db, quotes: db.quotes.filter((quote) => quote.id !== quoteId) });
     return null;
   };
 
@@ -411,8 +439,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     updateProduct,
     deleteProduct,
     addReview,
+    deleteReviewByAdmin,
     saveQuote,
     updateQuote,
+    deleteQuote,
     applyUserSanction,
     clearUserSanction,
     applyVendorSanction,

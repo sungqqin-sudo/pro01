@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export const BuyerDashboardPage = () => {
-  const { db, currentUser, deleteMyAccount } = useApp();
+  const { db, currentUser, deleteMyAccount, deleteQuote } = useApp();
   const navigate = useNavigate();
 
   const quotes = db.quotes
@@ -31,6 +31,18 @@ export const BuyerDashboardPage = () => {
               >
                 수정
               </Link>
+            </div>
+            <div className="mt-2">
+              <button
+                type="button"
+                className="rounded-md border border-rose-300 px-3 py-1 text-sm text-rose-700 hover:bg-rose-50"
+                onClick={() => {
+                  if (!window.confirm('이 견적을 삭제하시겠습니까?')) return;
+                  deleteQuote(quote.id);
+                }}
+              >
+                삭제
+              </button>
             </div>
             <ul className="mt-2 space-y-2">
               {quote.items.map((item, idx) => (

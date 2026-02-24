@@ -7,7 +7,7 @@ import { maskContactValue } from '../services/storage';
 
 export const VendorDetailPage = () => {
   const { id } = useParams();
-  const { db, addReview, currentUser, isAdmin, isVendorBlocked } = useApp();
+  const { db, addReview, deleteReviewByAdmin, currentUser, isAdmin, isVendorBlocked } = useApp();
   const vendor = db.vendors.find((v) => v.id === id);
   const [rating, setRating] = useState(5);
   const [text, setText] = useState('');
@@ -78,7 +78,21 @@ export const VendorDetailPage = () => {
           <ul className="mt-3 space-y-3">
             {reviews.map((review) => (
               <li key={review.id} className="rounded-md border border-slate-200 p-3">
-                <p className="text-amber-500">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-amber-500">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      className="rounded-md border border-rose-300 px-2 py-1 text-xs text-rose-700"
+                      onClick={() => {
+                        if (!window.confirm('이 리뷰를 삭제하시겠습니까?')) return;
+                        setMessage(deleteReviewByAdmin(review.id) || '리뷰를 삭제했습니다.');
+                      }}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-slate-700">{review.text || '(코멘트 없음)'}</p>
                 <p className="mt-1 text-xs text-slate-500">
                   작성자: {review.reviewerAccountName || 'unknown'}
