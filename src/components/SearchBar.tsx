@@ -3,23 +3,37 @@ import { CATEGORIES } from '../services/storage';
 
 type Props = {
   initialQuery?: string;
+  initialVendorQuery?: string;
   initialCategory?: string;
   initialAi?: boolean;
-  onSubmit: (query: string, category: string, useAi: boolean) => void;
+  onSubmit: (query: string, vendorQuery: string, category: string, useAi: boolean) => void;
 };
 
-export const SearchBar = ({ initialQuery = '', initialCategory = '', initialAi = false, onSubmit }: Props) => {
+export const SearchBar = ({
+  initialQuery = '',
+  initialVendorQuery = '',
+  initialCategory = '',
+  initialAi = false,
+  onSubmit,
+}: Props) => {
   const [query, setQuery] = useState(initialQuery);
+  const [vendorQuery, setVendorQuery] = useState(initialVendorQuery);
   const [category, setCategory] = useState(initialCategory);
   const [useAi, setUseAi] = useState(initialAi);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="grid gap-3 md:grid-cols-[1fr_180px_120px]">
+      <div className="grid gap-3 md:grid-cols-[1fr_1fr_180px_120px]">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="예: 75kw 모터 인버터 업체 찾아줘"
+          placeholder="자재 기준 검색어 (예: 75kw 모터 인버터)"
+          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400"
+        />
+        <input
+          value={vendorQuery}
+          onChange={(e) => setVendorQuery(e.target.value)}
+          placeholder="업체 기준 검색어 (예: 한빛전력)"
           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400"
         />
         <select
@@ -35,7 +49,7 @@ export const SearchBar = ({ initialQuery = '', initialCategory = '', initialAi =
         <button
           type="button"
           className="rounded-md bg-brand-600 px-3 py-2 font-semibold text-white hover:bg-brand-700"
-          onClick={() => onSubmit(query, category, useAi)}
+          onClick={() => onSubmit(query, vendorQuery, category, useAi)}
         >
           검색
         </button>

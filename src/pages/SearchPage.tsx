@@ -35,6 +35,7 @@ export const SearchPage = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const q = params.get('q') ?? '';
+  const vendorQuery = params.get('vendorQuery') ?? '';
   const category = params.get('category') ?? '';
   const vendorId = params.get('vendorId') ?? '';
   const minRating = Number(params.get('minRating') ?? '0');
@@ -60,13 +61,14 @@ export const SearchPage = () => {
         visibleDb,
         {
           q,
+          vendorQuery,
           category,
           vendorId,
           minRating: Number.isNaN(minRating) ? 0 : minRating,
         },
         nlq
       ),
-    [visibleDb, q, category, vendorId, minRating, nlq]
+    [visibleDb, q, vendorQuery, category, vendorId, minRating, nlq]
   );
 
   const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
@@ -97,11 +99,13 @@ export const SearchPage = () => {
       <h1 className="text-2xl font-bold">검색 결과</h1>
       <SearchBar
         initialQuery={q}
+        initialVendorQuery={vendorQuery}
         initialCategory={category}
         initialAi={useAi}
-        onSubmit={(query, nextCategory, ai) => {
+        onSubmit={(query, nextVendorQuery, nextCategory, ai) => {
           const next = new URLSearchParams(params);
           if (query) next.set('q', query); else next.delete('q');
+          if (nextVendorQuery) next.set('vendorQuery', nextVendorQuery); else next.delete('vendorQuery');
           if (nextCategory) next.set('category', nextCategory); else next.delete('category');
           if (ai) next.set('ai', '1'); else next.delete('ai');
           next.delete('page');
