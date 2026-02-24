@@ -1,14 +1,161 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <title>로또 당첨번호 아카이브</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <div class="bg-orb orb-a" aria-hidden="true"></div>
+  <div class="bg-orb orb-b" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="logo">LUCKY</div>
+    <nav class="nav">
+      <button class="pill" data-action="highlight">번호 구간 강조</button>
+      <button class="pill" data-action="copy">이번 회차 복사</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">로또 6/45 · 샘플 데이터</p>
+        <h1>당첨번호를 예술처럼 모아두는 아카이브</h1>
+        <p class="lead">
+          이 페이지는 정적 데모입니다. 실제 최신 번호가 아닌 예시 데이터로 구성되어 있습니다.
+        </p>
+      </div>
+      <div class="hero-card">
+        <div class="hero-label">이번 회차</div>
+        <div class="draw-meta">
+          <span class="draw-id">제 1163회</span>
+          <span class="draw-date">2026.02.21 (토)</span>
+        </div>
+        <div class="numbers" data-numbers>
+          <span class="ball" data-n="4">4</span>
+          <span class="ball" data-n="11">11</span>
+          <span class="ball" data-n="19">19</span>
+          <span class="ball" data-n="27">27</span>
+          <span class="ball" data-n="34">34</span>
+          <span class="ball" data-n="42">42</span>
+          <span class="ball bonus" data-n="7">7</span>
+        </div>
+        <div class="note">보너스 번호는 오른쪽 끝에 표시됩니다.</div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <h3>숫자 분포</h3>
+        <p>1-9: 2개 · 10-19: 1개 · 20-29: 1개 · 30-39: 1개 · 40-45: 1개</p>
+      </div>
+      <div class="stat-card">
+        <h3>홀짝</h3>
+        <p>홀수 3개 · 짝수 3개</p>
+      </div>
+      <div class="stat-card">
+        <h3>합계</h3>
+        <p>137</p>
+      </div>
+    </section>
+
+    <section class="archive">
+      <div class="section-title">
+        <h2>최근 회차</h2>
+        <p>최근 5회차 샘플 기록</p>
+      </div>
+
+      <div class="archive-grid">
+        <article class="draw-card">
+          <div class="draw-head">
+            <span>제 1162회</span>
+            <span>2026.02.14</span>
+          </div>
+          <div class="numbers" data-numbers>
+            <span class="ball" data-n="2">2</span>
+            <span class="ball" data-n="9">9</span>
+            <span class="ball" data-n="21">21</span>
+            <span class="ball" data-n="23">23</span>
+            <span class="ball" data-n="33">33</span>
+            <span class="ball" data-n="44">44</span>
+            <span class="ball bonus" data-n="15">15</span>
+          </div>
+        </article>
+
+        <article class="draw-card">
+          <div class="draw-head">
+            <span>제 1161회</span>
+            <span>2026.02.07</span>
+          </div>
+          <div class="numbers" data-numbers>
+            <span class="ball" data-n="6">6</span>
+            <span class="ball" data-n="12">12</span>
+            <span class="ball" data-n="18">18</span>
+            <span class="ball" data-n="25">25</span>
+            <span class="ball" data-n="31">31</span>
+            <span class="ball" data-n="40">40</span>
+            <span class="ball bonus" data-n="3">3</span>
+          </div>
+        </article>
+
+        <article class="draw-card">
+          <div class="draw-head">
+            <span>제 1160회</span>
+            <span>2026.01.31</span>
+          </div>
+          <div class="numbers" data-numbers>
+            <span class="ball" data-n="1">1</span>
+            <span class="ball" data-n="17">17</span>
+            <span class="ball" data-n="22">22</span>
+            <span class="ball" data-n="28">28</span>
+            <span class="ball" data-n="37">37</span>
+            <span class="ball" data-n="41">41</span>
+            <span class="ball bonus" data-n="29">29</span>
+          </div>
+        </article>
+
+        <article class="draw-card">
+          <div class="draw-head">
+            <span>제 1159회</span>
+            <span>2026.01.24</span>
+          </div>
+          <div class="numbers" data-numbers>
+            <span class="ball" data-n="8">8</span>
+            <span class="ball" data-n="14">14</span>
+            <span class="ball" data-n="20">20</span>
+            <span class="ball" data-n="27">27</span>
+            <span class="ball" data-n="35">35</span>
+            <span class="ball" data-n="45">45</span>
+            <span class="ball bonus" data-n="5">5</span>
+          </div>
+        </article>
+
+        <article class="draw-card">
+          <div class="draw-head">
+            <span>제 1158회</span>
+            <span>2026.01.17</span>
+          </div>
+          <div class="numbers" data-numbers>
+            <span class="ball" data-n="10">10</span>
+            <span class="ball" data-n="13">13</span>
+            <span class="ball" data-n="16">16</span>
+            <span class="ball" data-n="24">24</span>
+            <span class="ball" data-n="32">32</span>
+            <span class="ball" data-n="39">39</span>
+            <span class="ball bonus" data-n="1">1</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>데모 페이지 · 실제 최신 번호는 포함하지 않습니다.</p>
+  </footer>
+
+  <script defer src="/main.js"></script>
 </body>
 </html>
