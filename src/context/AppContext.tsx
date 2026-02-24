@@ -45,6 +45,7 @@ type AppContextValue = {
   clearUserSanction: (userId: string) => void;
   applyVendorSanction: (vendorId: string, days: number | null) => string | null;
   clearVendorSanction: (vendorId: string) => void;
+  deleteUserByAdmin: (userId: string) => string | null;
   deleteMyAccount: () => string | null;
   isUserBlocked: (user: User | null) => boolean;
   isVendorBlocked: (vendor: Vendor | null) => boolean;
@@ -82,6 +83,28 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const commitDB = (next: AppDB) => {
     setDb(next);
     saveDB(next);
+  };
+
+  const deleteUserCascade = (source: AppDB, userId: string): AppDB => {
+    const myVendorId = source.vendors.find((vendor) => vendor.ownerUserId === userId)?.id;
+
+    let next: AppDB = {
+      ...source,
+      users: source.users.filter((user) => user.id !== userId),
+      quotes: source.quotes.filter((quote) => quote.buyerUserId !== userId),
+      reviews: source.reviews.filter((review) => review.reviewerUserId !== userId && review.buyerUserId !== userId),
+    };
+
+    if (myVendorId) {
+      next = {
+        ...next,
+        vendors: next.vendors.filter((vendor) => vendor.id !== myVendorId),
+        products: next.products.filter((product) => product.vendorId !== myVendorId),
+        reviews: next.reviews.filter((review) => review.vendorId !== myVendorId),
+      };
+    }
+
+    return recalcAllVendorStats(next);
   };
 
   const login = (email: string, password: string): string | null => {
@@ -329,29 +352,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     commitDB(next);
   };
 
+  const deleteUserByAdmin = (userId: string): string | null => {
+    if (!currentUser || currentUser.role !== 'admin') return '관리자만 계정을 삭제할 수 있습니다.';
+    const target = db.users.find((user) => user.id === userId);
+    if (!target) return '사용자를 찾을 수 없습니다.';
+    if (target.role === 'admin') return '마스터 계정은 삭제할 수 없습니다.';
+
+    const next = deleteUserCascade(db, userId);
+    commitDB(next);
+    return null;
+  };
+
   const deleteMyAccount = (): string | null => {
     if (!currentUser) return '로그인 상태가 아닙니다.';
     if (currentUser.role === 'admin') return '마스터 계정은 탈퇴할 수 없습니다.';
-
-    const myVendorId = db.vendors.find((vendor) => vendor.ownerUserId === currentUser.id)?.id;
-
-    let next: AppDB = {
-      ...db,
-      users: db.users.filter((user) => user.id !== currentUser.id),
-      quotes: db.quotes.filter((quote) => quote.buyerUserId !== currentUser.id),
-      reviews: db.reviews.filter((review) => review.reviewerUserId !== currentUser.id && review.buyerUserId !== currentUser.id),
-    };
-
-    if (myVendorId) {
-      next = {
-        ...next,
-        vendors: next.vendors.filter((vendor) => vendor.id !== myVendorId),
-        products: next.products.filter((product) => product.vendorId !== myVendorId),
-        reviews: next.reviews.filter((review) => review.vendorId !== myVendorId),
-      };
-    }
-
-    next = recalcAllVendorStats(next);
+    const next = deleteUserCascade(db, currentUser.id);
     commitDB(next);
     logout();
     return null;
@@ -377,6 +392,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     clearUserSanction,
     applyVendorSanction,
     clearVendorSanction,
+    deleteUserByAdmin,
     deleteMyAccount,
     isUserBlocked,
     isVendorBlocked,

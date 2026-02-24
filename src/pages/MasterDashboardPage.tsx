@@ -10,6 +10,7 @@ export const MasterDashboardPage = () => {
     clearUserSanction,
     applyVendorSanction,
     clearVendorSanction,
+    deleteUserByAdmin,
     isUserBlocked,
     isVendorBlocked,
   } = useApp();
@@ -57,6 +58,15 @@ export const MasterDashboardPage = () => {
                   <button className="rounded-md border border-slate-300 px-3 py-1 text-sm" onClick={() => setMessage(applyUserSanction(user.id, 30) || '계정 30일 제재 적용')}>30일 제재</button>
                   <button className="rounded-md border border-rose-300 px-3 py-1 text-sm text-rose-700" onClick={() => setMessage(applyUserSanction(user.id, null) || '계정 무기한 제재 적용')}>무기한</button>
                   <button className="rounded-md border border-emerald-300 px-3 py-1 text-sm text-emerald-700" onClick={() => { clearUserSanction(user.id); setMessage('계정 제재 해제'); }}>해제</button>
+                  <button
+                    className="rounded-md border border-rose-500 px-3 py-1 text-sm font-semibold text-rose-700"
+                    onClick={() => {
+                      if (!window.confirm(`정말 ${user.accountName} 계정을 삭제하시겠습니까? 관련 데이터도 함께 삭제됩니다.`)) return;
+                      setMessage(deleteUserByAdmin(user.id) || '계정 삭제 완료');
+                    }}
+                  >
+                    계정 삭제
+                  </button>
                 </div>
               </div>
             </li>

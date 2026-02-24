@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import type { Vendor } from '../types';
-import { maskContactValue } from '../services/storage';
+import { isBlockedNow, maskContactValue } from '../services/storage';
 import { StarRating } from './StarRating';
 
 export const VendorCard = ({ vendor }: { vendor: Vendor }) => {
+  const isBlocked = isBlockedNow(vendor.status, vendor.blockedUntil);
+
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -11,6 +13,7 @@ export const VendorCard = ({ vendor }: { vendor: Vendor }) => {
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-slate-900">{vendor.companyName}</h3>
             {vendor.isSample && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">예시 업체</span>}
+            {isBlocked && <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">제재 업체</span>}
           </div>
           <p className="mt-1 text-sm text-slate-600">분야: {vendor.categories.join(', ')}</p>
         </div>

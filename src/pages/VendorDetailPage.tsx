@@ -42,6 +42,7 @@ export const VendorDetailPage = () => {
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-bold">{vendor.companyName}</h1>
           {vendor.isSample && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">예시 업체</span>}
+          {isVendorBlocked(vendor) && <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">제재 업체</span>}
         </div>
         <p className="mt-1 text-sm text-slate-600">분야: {vendor.categories.join(', ')}</p>
         <div className="mt-2">
