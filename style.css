@@ -129,6 +129,31 @@ h1 {
   max-width: 480px;
 }
 
+.actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cta {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(217, 75, 40, 0.2);
+}
+
+.cta.ghost {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--stroke);
+  box-shadow: 0 12px 30px rgba(16, 23, 34, 0.08);
+}
+
 .hero-card {
   background: var(--card);
   border: 1px solid var(--stroke);
@@ -273,6 +298,10 @@ body.show-ranges .ball.range-5 {
   justify-content: space-between;
   font-weight: 600;
   margin-bottom: 12px;
+}
+
+.generator-list .archive-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .site-footer {
