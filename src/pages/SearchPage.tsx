@@ -233,18 +233,14 @@ export const SearchPage = () => {
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {pagedVendorGroups.map(({ vendor, items }) => (
-            <section key={vendor.id} className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
+            <section key={vendor.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-slate-900">{vendor.companyName}</h3>
-                <p className="text-sm text-slate-600">매칭 자재 {items.length}개</p>
+                <p className="text-xs text-slate-500">매칭 {items.length}건</p>
               </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {items.map(({ product }) => (
-                  <ProductCard key={product.id} product={product} vendor={vendor} />
-                ))}
-              </div>
+              <p className="mt-2 text-sm text-slate-600">취급 분야: {vendor.categories.join(', ')}</p>
             </section>
           ))}
         </div>
