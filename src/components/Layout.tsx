@@ -17,8 +17,9 @@ export const Layout = () => {
             <NavLink to="/search" className={navClass}>검색</NavLink>
             <NavLink to="/vendors" className={navClass}>업체</NavLink>
             <NavLink to="/buyer/quote" className={navClass}>견적 산출</NavLink>
-            {currentUser?.role === 'buyer' && <NavLink to="/buyer/dashboard" className={navClass}>내 견적</NavLink>}
+            {(currentUser?.role === 'buyer' || currentUser?.role === 'seller') && <NavLink to="/buyer/dashboard" className={navClass}>내 견적</NavLink>}
             {currentUser?.role === 'seller' && <NavLink to="/seller/dashboard" className={navClass}>판매자 대시보드</NavLink>}
+            {currentUser?.role === 'admin' && <NavLink to="/master/dashboard" className={navClass}>마스터 대시보드</NavLink>}
             {!currentUser && <NavLink to="/login" className={navClass}>로그인</NavLink>}
             {!currentUser && <NavLink to="/signup" className={navClass}>회원가입</NavLink>}
             {currentUser && (

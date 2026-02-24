@@ -7,7 +7,7 @@ import { parseNaturalQuery } from '../services/nlq';
 import { searchProducts } from '../services/search';
 
 export const SearchPage = () => {
-  const { db } = useApp();
+  const { db, isAdmin, isVendorBlocked } = useApp();
   const [params, setParams] = useSearchParams();
 
   const q = params.get('q') ?? '';
@@ -16,12 +16,23 @@ export const SearchPage = () => {
   const minRating = Number(params.get('minRating') ?? '0');
   const useAi = params.get('ai') === '1';
 
+  const visibleDb = useMemo(() => {
+    if (isAdmin) return db;
+    const vendorIds = new Set(db.vendors.filter((vendor) => !isVendorBlocked(vendor)).map((vendor) => vendor.id));
+    return {
+      ...db,
+      vendors: db.vendors.filter((vendor) => vendorIds.has(vendor.id)),
+      products: db.products.filter((product) => vendorIds.has(product.vendorId)),
+      reviews: db.reviews.filter((review) => vendorIds.has(review.vendorId)),
+    };
+  }, [db, isAdmin, isVendorBlocked]);
+
   const nlq = useMemo(() => (useAi && q ? parseNaturalQuery(q) : undefined), [q, useAi]);
 
   const results = useMemo(
     () =>
       searchProducts(
-        db,
+        visibleDb,
         {
           q,
           category,
@@ -30,7 +41,7 @@ export const SearchPage = () => {
         },
         nlq
       ),
-    [db, q, category, vendorId, minRating, nlq]
+    [visibleDb, q, category, vendorId, minRating, nlq]
   );
 
   return (
@@ -62,7 +73,7 @@ export const SearchPage = () => {
             }}
           >
             <option value="">전체 업체</option>
-            {db.vendors.map((vendor) => (
+            {visibleDb.vendors.map((vendor) => (
               <option key={vendor.id} value={vendor.id}>{vendor.companyName}</option>
             ))}
           </select>

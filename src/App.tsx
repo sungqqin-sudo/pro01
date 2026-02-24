@@ -6,6 +6,7 @@ import { BuyerDashboardPage } from './pages/BuyerDashboardPage';
 import { BuyerQuotePage } from './pages/BuyerQuotePage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { MasterDashboardPage } from './pages/MasterDashboardPage';
 import { SearchPage } from './pages/SearchPage';
 import { SellerDashboardPage } from './pages/SellerDashboardPage';
 import { SignupPage } from './pages/SignupPage';
@@ -27,7 +28,7 @@ const App = () => {
           <Route
             path="/buyer/dashboard"
             element={
-              <ProtectedRoute role="buyer">
+              <ProtectedRoute roles={['buyer', 'seller']}>
                 <BuyerDashboardPage />
               </ProtectedRoute>
             }
@@ -35,8 +36,16 @@ const App = () => {
           <Route
             path="/seller/dashboard"
             element={
-              <ProtectedRoute role="seller">
+              <ProtectedRoute roles={['seller']}>
                 <SellerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/master/dashboard"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <MasterDashboardPage />
               </ProtectedRoute>
             }
           />

@@ -1,6 +1,5 @@
-import { FormEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { FormEvent, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { StarRating } from '../components/StarRating';
 import { useApp } from '../context/AppContext';
@@ -8,16 +7,22 @@ import { maskContactValue } from '../services/storage';
 
 export const VendorDetailPage = () => {
   const { id } = useParams();
-  const { db, addReview, isBuyer, currentUser } = useApp();
+  const { db, addReview, currentUser, isAdmin, isVendorBlocked } = useApp();
   const vendor = db.vendors.find((v) => v.id === id);
   const [rating, setRating] = useState(5);
   const [text, setText] = useState('');
   const [message, setMessage] = useState('');
 
+  const canReview = Boolean(currentUser && currentUser.role !== 'admin');
+
   if (!vendor) return <p>업체를 찾을 수 없습니다.</p>;
+  if (!isAdmin && isVendorBlocked(vendor)) return <p>이 업체는 현재 제재 중으로 조회할 수 없습니다.</p>;
 
   const products = db.products.filter((p) => p.vendorId === vendor.id);
-  const reviews = db.reviews.filter((r) => r.vendorId === vendor.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const reviews = useMemo(
+    () => db.reviews.filter((r) => r.vendorId === vendor.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [db.reviews, vendor.id]
+  );
 
   const submitReview = (event: FormEvent) => {
     event.preventDefault();
@@ -34,7 +39,10 @@ export const VendorDetailPage = () => {
   return (
     <div className="space-y-5">
       <section className="rounded-xl border border-slate-200 bg-white p-5">
-        <h1 className="text-2xl font-bold">{vendor.companyName}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-bold">{vendor.companyName}</h1>
+          {vendor.isSample && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">예시 업체</span>}
+        </div>
         <p className="mt-1 text-sm text-slate-600">분야: {vendor.categories.join(', ')}</p>
         <div className="mt-2">
           <StarRating value={vendor.avgRating} count={vendor.reviewCount} />
@@ -71,6 +79,10 @@ export const VendorDetailPage = () => {
               <li key={review.id} className="rounded-md border border-slate-200 p-3">
                 <p className="text-amber-500">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p>
                 <p className="mt-1 text-sm text-slate-700">{review.text || '(코멘트 없음)'}</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  작성자: {review.reviewerAccountName || 'unknown'}
+                  {review.reviewerRole === 'seller' && review.reviewerVendorName ? ` / 업체: ${review.reviewerVendorName}` : ''}
+                </p>
                 <p className="mt-1 text-xs text-slate-500">{new Date(review.createdAt).toLocaleString('ko-KR')}</p>
               </li>
             ))}
@@ -79,7 +91,7 @@ export const VendorDetailPage = () => {
 
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <h2 className="text-lg font-semibold">별점 남기기</h2>
-          {isBuyer ? (
+          {canReview ? (
             <form onSubmit={submitReview}>
               <label className="mt-3 block text-sm">
                 별점
@@ -107,10 +119,9 @@ export const VendorDetailPage = () => {
             </form>
           ) : (
             <div className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-              <p>리뷰/별점은 구매자 계정으로 로그인해야 등록할 수 있습니다.</p>
-              <p className="mt-1">데모 구매자 계정: buyer@demo.com / 1234</p>
+              <p>리뷰/별점은 로그인 후 등록할 수 있습니다.</p>
+              <p className="mt-1">데모 구매자: buyer@demo.com / 1234, 데모 판매자: power@seller.com / 1234</p>
               <Link to="/login" className="mt-2 inline-block font-semibold underline">로그인 하러 가기</Link>
-              {currentUser?.role === 'seller' && <p className="mt-1">현재 판매자로 로그인되어 있습니다. 로그아웃 후 구매자로 로그인해 주세요.</p>}
             </div>
           )}
         </div>

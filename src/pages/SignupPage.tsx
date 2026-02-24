@@ -2,12 +2,13 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../services/storage';
-import type { UserRole } from '../types';
+
+type SignupRole = 'buyer' | 'seller';
 
 export const SignupPage = () => {
   const { signup } = useApp();
   const navigate = useNavigate();
-  const [role, setRole] = useState<UserRole>('buyer');
+  const [role, setRole] = useState<SignupRole>('buyer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -38,7 +39,7 @@ export const SignupPage = () => {
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <label className="block text-sm">
           역할
-          <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2">
+          <select value={role} onChange={(e) => setRole(e.target.value as SignupRole)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2">
             <option value="buyer">구매자</option>
             <option value="seller">판매자</option>
           </select>

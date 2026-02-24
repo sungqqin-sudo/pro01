@@ -14,8 +14,10 @@ export const ProductCard = ({ product, vendor }: { product: Product; vendor: Ven
     <p className="mt-2 text-sm text-slate-600">{product.desc}</p>
     <p className="mt-2 text-sm font-medium text-slate-900">{formatPrice(product.priceMin, product.priceMax)}</p>
     <p className="mt-2 text-xs text-slate-500">태그: {product.tags.join(', ')}</p>
-    <div className="mt-4 flex items-center justify-between">
-      <span className="text-sm text-slate-700">업체: {vendor.companyName}</span>
+    <div className="mt-4 flex items-center justify-between gap-2">
+      <span className="text-sm text-slate-700">
+        업체: {vendor.companyName} {vendor.isSample ? '(예시 업체)' : ''}
+      </span>
       <Link to={`/vendor/${vendor.id}`} className="text-sm font-semibold text-brand-700 hover:underline">
         업체 보기
       </Link>

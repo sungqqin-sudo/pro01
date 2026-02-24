@@ -1,10 +1,12 @@
 import { FormEvent, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../services/storage';
 
 export const SellerDashboardPage = () => {
-  const { db, currentVendor, updateVendorProfile, createProduct, updateProduct, deleteProduct } = useApp();
+  const { db, currentVendor, updateVendorProfile, createProduct, updateProduct, deleteProduct, deleteMyAccount, isVendorBlocked } = useApp();
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const [companyName, setCompanyName] = useState(currentVendor?.companyName ?? '');
   const [categories, setCategories] = useState<string[]>(currentVendor?.categories ?? ['기타']);
@@ -29,12 +31,18 @@ export const SellerDashboardPage = () => {
 
   if (!currentVendor) return <p>판매자 업체 정보가 없습니다.</p>;
 
+  const blocked = isVendorBlocked(currentVendor);
+
   const toggleCategory = (cat: string) => {
     setCategories((prev) => (prev.includes(cat) ? prev.filter((item) => item !== cat) : [...prev, cat]));
   };
 
   const saveProfile = (event: FormEvent) => {
     event.preventDefault();
+    if (blocked) {
+      setMessage('현재 업체는 제재 중이라 수정할 수 없습니다.');
+      return;
+    }
     updateVendorProfile({
       companyName,
       categories: categories.length ? categories : ['기타'],
@@ -46,6 +54,11 @@ export const SellerDashboardPage = () => {
 
   const submitProduct = (event: FormEvent) => {
     event.preventDefault();
+    if (blocked) {
+      setMessage('현재 업체는 제재 중이라 제품을 변경할 수 없습니다.');
+      return;
+    }
+
     const payload = {
       name,
       category,
@@ -84,9 +97,16 @@ export const SellerDashboardPage = () => {
     setPriceMax(target.priceMax ? String(target.priceMax) : '');
   };
 
+  const withdraw = () => {
+    if (!window.confirm('정말 계정을 탈퇴하시겠습니까?')) return;
+    const err = deleteMyAccount();
+    if (!err) navigate('/');
+  };
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">판매자 대시보드</h1>
+      {blocked && <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">현재 업체는 제재 중입니다. 제재 해제 전까지 일부 기능이 제한됩니다.</p>}
 
       <form onSubmit={saveProfile} className="rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-lg font-semibold">업체 프로필</h2>
@@ -158,6 +178,7 @@ export const SellerDashboardPage = () => {
         </ul>
       </section>
 
+      <button onClick={withdraw} className="rounded-md border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700">계정 탈퇴</button>
       {message && <p className="text-sm text-slate-700">{message}</p>}
     </div>
   );

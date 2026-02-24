@@ -7,15 +7,24 @@ import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../services/storage';
 
 export const HomePage = () => {
-  const { db } = useApp();
+  const { db, isAdmin, isVendorBlocked } = useApp();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('');
 
-  const topVendors = useMemo(() => [...db.vendors].sort((a, b) => b.avgRating - a.avgRating).slice(0, 3), [db.vendors]);
+  const visibleVendors = useMemo(
+    () => (isAdmin ? db.vendors : db.vendors.filter((vendor) => !isVendorBlocked(vendor))),
+    [db.vendors, isAdmin, isVendorBlocked]
+  );
+
+  const topVendors = useMemo(() => [...visibleVendors].sort((a, b) => b.avgRating - a.avgRating).slice(0, 3), [visibleVendors]);
+
   const topProducts = useMemo(() => {
-    const source = activeCategory ? db.products.filter((p) => p.category === activeCategory) : db.products;
+    const allowedVendorIds = new Set(visibleVendors.map((v) => v.id));
+    const source = activeCategory
+      ? db.products.filter((p) => p.category === activeCategory && allowedVendorIds.has(p.vendorId))
+      : db.products.filter((p) => allowedVendorIds.has(p.vendorId));
     return source.slice(0, 6);
-  }, [db.products, activeCategory]);
+  }, [db.products, activeCategory, visibleVendors]);
 
   return (
     <div className="space-y-6">

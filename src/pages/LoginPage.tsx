@@ -11,7 +11,9 @@ export const LoginPage = () => {
 
   useEffect(() => {
     if (!currentUser) return;
-    navigate(currentUser.role === 'seller' ? '/seller/dashboard' : '/buyer/dashboard');
+    if (currentUser.role === 'admin') navigate('/master/dashboard');
+    else if (currentUser.role === 'seller') navigate('/seller/dashboard');
+    else navigate('/buyer/dashboard');
   }, [currentUser, navigate]);
 
   const onSubmit = (event: FormEvent) => {
@@ -27,7 +29,7 @@ export const LoginPage = () => {
   return (
     <div className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h1 className="text-2xl font-bold">로그인</h1>
-      <p className="mt-1 text-sm text-slate-600">데모 계정 비밀번호 예시: 1234</p>
+      <p className="mt-1 text-sm text-slate-600">데모 계정 예시: buyer@demo.com / 1234, master@demo.com / 1234</p>
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <label className="block text-sm">
           이메일

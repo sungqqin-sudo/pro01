@@ -1,10 +1,15 @@
-export type UserRole = 'buyer' | 'seller';
+export type UserRole = 'buyer' | 'seller' | 'admin';
+
+export type AccountStatus = 'active' | 'blocked';
 
 export type User = {
   id: string;
   email: string;
+  accountName: string;
   passwordHash: string;
   role: UserRole;
+  status: AccountStatus;
+  blockedUntil?: string;
   createdAt: string;
 };
 
@@ -23,6 +28,9 @@ export type Vendor = {
   contactPublic: boolean;
   avgRating: number;
   reviewCount: number;
+  status: AccountStatus;
+  blockedUntil?: string;
+  isSample: boolean;
 };
 
 export type Product = {
@@ -40,10 +48,14 @@ export type Product = {
 export type Review = {
   id: string;
   vendorId: string;
-  buyerUserId: string;
   rating: number;
   text: string;
   createdAt: string;
+  reviewerUserId?: string;
+  reviewerRole?: UserRole;
+  reviewerAccountName?: string;
+  reviewerVendorName?: string;
+  buyerUserId?: string;
 };
 
 export type QuoteItem = {

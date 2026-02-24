@@ -65,11 +65,6 @@ export const BuyerQuotePage = () => {
       return;
     }
 
-    if (currentUser?.role !== 'buyer') {
-      setMessage('비로그인은 저장할 수 없습니다. 로그인 후 저장해 주세요.');
-      return;
-    }
-
     const err = saveQuote(items);
     if (err) {
       setMessage(err);
@@ -80,11 +75,12 @@ export const BuyerQuotePage = () => {
   };
 
   const total = totals(items);
+  const canSave = currentUser?.role === 'buyer' || currentUser?.role === 'seller';
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">견적 산출</h1>
-      <p className="text-sm text-slate-600">비로그인도 견적 산출 가능. 저장은 구매자 로그인 필요.</p>
+      <p className="text-sm text-slate-600">비로그인도 견적 산출 가능. 저장은 구매자/판매자 로그인 필요.</p>
 
       <form onSubmit={addItem} className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="grid gap-3 md:grid-cols-2">
@@ -159,7 +155,7 @@ export const BuyerQuotePage = () => {
         </p>
 
         <button onClick={save} className="mt-3 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">견적 저장</button>
-        {currentUser?.role !== 'buyer' && (
+        {!canSave && (
           <p className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
             비로그인은 저장할 수 없습니다. <Link to="/login" className="font-semibold underline">로그인 후 저장</Link>
           </p>

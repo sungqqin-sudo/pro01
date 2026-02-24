@@ -3,7 +3,9 @@ import type { AppDB, Product, Quote, QuoteItem, Review, User, UserRole, Vendor }
 import {
   hashPassword,
   initStorage,
+  isBlockedNow,
   loadDB,
+  recalcAllVendorStats,
   recalcVendorStats,
   saveDB,
   setSessionUserId,
@@ -14,7 +16,7 @@ import {
 type SignupInput = {
   email: string;
   password: string;
-  role: UserRole;
+  role: Exclude<UserRole, 'admin'>;
   companyName?: string;
   categories?: string[];
   phone?: string;
@@ -29,6 +31,7 @@ type AppContextValue = {
   currentVendor: Vendor | null;
   isBuyer: boolean;
   isSeller: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => string | null;
   logout: () => void;
   signup: (input: SignupInput) => string | null;
@@ -38,6 +41,13 @@ type AppContextValue = {
   deleteProduct: (productId: string) => void;
   addReview: (vendorId: string, rating: number, text: string) => string | null;
   saveQuote: (items: QuoteItem[]) => string | null;
+  applyUserSanction: (userId: string, days: number | null) => string | null;
+  clearUserSanction: (userId: string) => void;
+  applyVendorSanction: (vendorId: string, days: number | null) => string | null;
+  clearVendorSanction: (vendorId: string) => void;
+  deleteMyAccount: () => string | null;
+  isUserBlocked: (user: User | null) => boolean;
+  isVendorBlocked: (vendor: Vendor | null) => boolean;
 };
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -46,6 +56,14 @@ const getSessionUser = (db: AppDB): User | null => {
   const id = getSessionUserId();
   if (!id) return null;
   return db.users.find((u) => u.id === id) ?? null;
+};
+
+const accountNameFromEmail = (email: string): string => email.split('@')[0] || email;
+
+const blockedUntilByDays = (days: number | null): string | undefined => {
+  if (days === null) return undefined;
+  const target = Date.now() + days * 24 * 60 * 60 * 1000;
+  return new Date(target).toISOString();
 };
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
@@ -58,6 +76,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return db.vendors.find((v) => v.ownerUserId === currentUser.id) ?? null;
   }, [db.vendors, currentUser]);
 
+  const isUserBlocked = (user: User | null): boolean => (user ? isBlockedNow(user.status, user.blockedUntil) : false);
+  const isVendorBlocked = (vendor: Vendor | null): boolean => (vendor ? isBlockedNow(vendor.status, vendor.blockedUntil) : false);
+
   const commitDB = (next: AppDB) => {
     setDb(next);
     saveDB(next);
@@ -67,6 +88,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const user = db.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     if (!user) return '사용자를 찾을 수 없습니다.';
     if (user.passwordHash !== hashPassword(password)) return '비밀번호가 일치하지 않습니다.';
+    if (isUserBlocked(user)) return '제재된 계정입니다. 관리자에게 문의하세요.';
+
+    if (user.role === 'seller') {
+      const vendor = db.vendors.find((v) => v.ownerUserId === user.id) ?? null;
+      if (isVendorBlocked(vendor)) return '현재 업체 계정이 제재 중입니다. 일정 기간 이용할 수 없습니다.';
+    }
+
     setCurrentUser(user);
     setSessionUserId(user.id);
     return null;
@@ -85,8 +113,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const newUser: User = {
       id: uid('user'),
       email: input.email.trim().toLowerCase(),
+      accountName: accountNameFromEmail(input.email.trim().toLowerCase()),
       passwordHash: hashPassword(input.password),
       role: input.role,
+      status: 'active',
       createdAt: new Date().toISOString(),
     };
 
@@ -105,6 +135,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         contactPublic: Boolean(input.contactPublic),
         avgRating: 0,
         reviewCount: 0,
+        status: 'active',
+        isSample: false,
       };
       next = { ...next, vendors: [...next.vendors, vendor] };
     }
@@ -119,13 +151,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!currentVendor) return;
     const next = {
       ...db,
-      vendors: db.vendors.map((v) => (v.id === currentVendor.id ? { ...v, ...patch, id: currentVendor.id, ownerUserId: currentVendor.ownerUserId } : v)),
+      vendors: db.vendors.map((v) =>
+        v.id === currentVendor.id
+          ? { ...v, ...patch, id: currentVendor.id, ownerUserId: currentVendor.ownerUserId, isSample: v.isSample }
+          : v
+      ),
     };
     commitDB(next);
   };
 
   const createProduct = (input: Omit<Product, 'id' | 'vendorId' | 'keywords'>) => {
     if (!currentVendor) return;
+    if (isVendorBlocked(currentVendor)) return;
+
     const baseKeywords = [input.name, input.desc, ...input.tags, input.category]
       .join(' ')
       .toLowerCase()
@@ -144,6 +182,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateProduct = (productId: string, patch: Partial<Product>) => {
     if (!currentVendor) return;
+    if (isVendorBlocked(currentVendor)) return;
+
     const next = {
       ...db,
       products: db.products.map((p) => {
@@ -162,17 +202,29 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const deleteProduct = (productId: string) => {
     if (!currentVendor) return;
+    if (isVendorBlocked(currentVendor)) return;
     commitDB({ ...db, products: db.products.filter((p) => !(p.id === productId && p.vendorId === currentVendor.id)) });
   };
 
   const addReview = (vendorId: string, rating: number, text: string): string | null => {
-    if (!currentUser || currentUser.role !== 'buyer') return '구매자 로그인 후 리뷰를 등록할 수 있습니다.';
+    if (!currentUser) return '로그인 후 리뷰를 등록할 수 있습니다.';
+    if (currentUser.role === 'admin') return '관리자 계정은 리뷰를 작성할 수 없습니다.';
+    if (isUserBlocked(currentUser)) return '제재된 계정은 리뷰 작성이 불가합니다.';
+
+    const vendor = db.vendors.find((v) => v.id === vendorId) ?? null;
+    if (!vendor) return '업체를 찾을 수 없습니다.';
+    if (isVendorBlocked(vendor)) return '제재 중인 업체에는 리뷰를 등록할 수 없습니다.';
     if (rating < 1 || rating > 5) return '별점은 1~5점만 가능합니다.';
+
+    const myVendor = currentUser.role === 'seller' ? db.vendors.find((v) => v.ownerUserId === currentUser.id) : null;
 
     const review: Review = {
       id: uid('review'),
       vendorId,
-      buyerUserId: currentUser.id,
+      reviewerUserId: currentUser.id,
+      reviewerRole: currentUser.role,
+      reviewerAccountName: currentUser.accountName || currentUser.email,
+      reviewerVendorName: myVendor?.companyName,
       rating,
       text: text.trim(),
       createdAt: new Date().toISOString(),
@@ -185,7 +237,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const saveQuote = (items: QuoteItem[]): string | null => {
-    if (!currentUser || currentUser.role !== 'buyer') return '견적 저장은 구매자 로그인 후 가능합니다.';
+    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) {
+      return '견적 저장은 로그인 후 가능합니다.';
+    }
+    if (isUserBlocked(currentUser)) return '제재된 계정은 견적 저장이 불가합니다.';
+
     const quote: Quote = {
       id: uid('quote'),
       buyerUserId: currentUser.id,
@@ -196,12 +252,118 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
+  const applyUserSanction = (userId: string, days: number | null): string | null => {
+    if (!currentUser || currentUser.role !== 'admin') return '관리자만 제재할 수 있습니다.';
+    const target = db.users.find((user) => user.id === userId);
+    if (!target) return '사용자를 찾을 수 없습니다.';
+    if (target.role === 'admin') return '관리자 계정은 제재할 수 없습니다.';
+
+    const next = {
+      ...db,
+      users: db.users.map((user) =>
+        user.id === userId
+          ? {
+              ...user,
+              status: 'blocked' as const,
+              blockedUntil: blockedUntilByDays(days),
+            }
+          : user
+      ),
+    };
+    commitDB(next);
+
+    if (currentUser.id === userId) logout();
+    return null;
+  };
+
+  const clearUserSanction = (userId: string) => {
+    const next = {
+      ...db,
+      users: db.users.map((user) =>
+        user.id === userId
+          ? {
+              ...user,
+              status: 'active' as const,
+              blockedUntil: undefined,
+            }
+          : user
+      ),
+    };
+    commitDB(next);
+  };
+
+  const applyVendorSanction = (vendorId: string, days: number | null): string | null => {
+    if (!currentUser || currentUser.role !== 'admin') return '관리자만 제재할 수 있습니다.';
+
+    const next = {
+      ...db,
+      vendors: db.vendors.map((vendor) =>
+        vendor.id === vendorId
+          ? {
+              ...vendor,
+              status: 'blocked' as const,
+              blockedUntil: blockedUntilByDays(days),
+            }
+          : vendor
+      ),
+    };
+    commitDB(next);
+
+    if (currentVendor?.id === vendorId) logout();
+    return null;
+  };
+
+  const clearVendorSanction = (vendorId: string) => {
+    const next = {
+      ...db,
+      vendors: db.vendors.map((vendor) =>
+        vendor.id === vendorId
+          ? {
+              ...vendor,
+              status: 'active' as const,
+              blockedUntil: undefined,
+            }
+          : vendor
+      ),
+    };
+    commitDB(next);
+  };
+
+  const deleteMyAccount = (): string | null => {
+    if (!currentUser) return '로그인 상태가 아닙니다.';
+    if (currentUser.role === 'admin') return '마스터 계정은 탈퇴할 수 없습니다.';
+
+    const myVendorId = db.vendors.find((vendor) => vendor.ownerUserId === currentUser.id)?.id;
+
+    let next: AppDB = {
+      ...db,
+      users: db.users.filter((user) => user.id !== currentUser.id),
+      quotes: db.quotes.filter((quote) => quote.buyerUserId !== currentUser.id),
+      reviews: db.reviews.filter((review) => review.reviewerUserId !== currentUser.id && review.buyerUserId !== currentUser.id),
+    };
+
+    if (myVendorId) {
+      next = {
+        ...next,
+        vendors: next.vendors.filter((vendor) => vendor.id !== myVendorId),
+        products: next.products.filter((product) => product.vendorId !== myVendorId),
+        reviews: next.reviews.filter((review) => review.vendorId !== myVendorId),
+      };
+    }
+
+    next = recalcAllVendorStats(next);
+    commitDB(next);
+    logout();
+    return null;
+  };
+
   const value: AppContextValue = {
     db,
     currentUser,
     currentVendor,
     isBuyer: currentUser?.role === 'buyer',
     isSeller: currentUser?.role === 'seller',
+    isAdmin: currentUser?.role === 'admin',
     login,
     logout,
     signup,
@@ -211,6 +373,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     deleteProduct,
     addReview,
     saveQuote,
+    applyUserSanction,
+    clearUserSanction,
+    applyVendorSanction,
+    clearVendorSanction,
+    deleteMyAccount,
+    isUserBlocked,
+    isVendorBlocked,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
