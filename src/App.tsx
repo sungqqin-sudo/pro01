@@ -4,14 +4,19 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppProvider } from './context/AppContext';
 import { BuyerDashboardPage } from './pages/BuyerDashboardPage';
 import { BuyerQuotePage } from './pages/BuyerQuotePage';
+import { ContactPage } from './pages/ContactPage';
+import { EditorialPolicyPage } from './pages/EditorialPolicyPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { MasterDashboardPage } from './pages/MasterDashboardPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { SearchPage } from './pages/SearchPage';
 import { SellerDashboardPage } from './pages/SellerDashboardPage';
 import { SignupPage } from './pages/SignupPage';
+import { TermsPage } from './pages/TermsPage';
 import { VendorDetailPage } from './pages/VendorDetailPage';
 import { VendorsPage } from './pages/VendorsPage';
+import { AboutPage } from './pages/AboutPage';
 
 const App = () => {
   return (
@@ -20,6 +25,11 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/editorial-policy" element={<EditorialPolicyPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/vendors" element={<VendorsPage />} />
           <Route path="/vendor/:id" element={<VendorDetailPage />} />
           <Route path="/login" element={<LoginPage />} />

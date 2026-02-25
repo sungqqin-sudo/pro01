@@ -84,6 +84,27 @@ export const HomePage = () => {
           })}
         </div>
       </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <article className="rounded-xl border border-slate-200 bg-white p-4">
+          <h3 className="text-base font-semibold text-slate-900">정보 중심 운영</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            사용자가 실제로 비교에 필요한 사양, 가격, 납기 정보를 우선 배치합니다.
+          </p>
+        </article>
+        <article className="rounded-xl border border-slate-200 bg-white p-4">
+          <h3 className="text-base font-semibold text-slate-900">명확한 정책 공개</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            개인정보처리방침, 이용약관, 콘텐츠 품질 원칙을 공개하고 정기적으로 갱신합니다.
+          </p>
+        </article>
+        <article className="rounded-xl border border-slate-200 bg-white p-4">
+          <h3 className="text-base font-semibold text-slate-900">문의 응답 채널</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            오류 제보와 정보 수정 요청을 접수하고, 영업일 기준 2일 내 응답을 목표로 합니다.
+          </p>
+        </article>
+      </section>
     </div>
   );
 };
